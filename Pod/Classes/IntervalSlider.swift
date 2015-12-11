@@ -12,7 +12,7 @@ public protocol IntervalSliderDelegate {
   func confirmValue(slider: IntervalSlider, validValue: Float)
 }
 
-public class IntervalSliderSource {
+public class IntervalSliderSource : NSObject {
   private var validValue: Float
   private var appearanceValue: Float
   private var label: UILabel?
@@ -39,6 +39,36 @@ public enum IntervalSliderOption {
   case DefaultValue(Float)
   case AddMark(Bool)
   case ThumbImage(UIImage)
+}
+
+public class IntervalSliderOptionsObject : NSObject {
+    
+    public var minimumTrackTintColor: UIColor?
+    public var minimumValue: Float = 0 // can set a value greater than 0
+    public var maximumValue: Float = 0 // can set a value less than 100
+    public var labelBottomPadding: CGFloat = 0
+    public var defaultValue: Float = 0
+    public var addMark: Bool = false
+    public var thumbImage: UIImage?
+    
+    public func generateOptions() -> [IntervalSliderOption] {
+        
+        var options = [IntervalSliderOption]()
+        
+        if let value = minimumTrackTintColor {
+            options.append(.MinimumTrackTintColor(value))
+        }
+            options.append(.MinimumValue(minimumValue))
+            options.append(.MaximumValue(maximumValue))
+            options.append(.LabelBottomPadding(labelBottomPadding))
+            options.append(.DefaultValue(defaultValue))
+            options.append(.AddMark(addMark))
+        if let value = thumbImage {
+            options.append(.ThumbImage(value))
+        }
+        
+        return options
+    }
 }
 
 public class IntervalSlider: UIView {
@@ -91,6 +121,10 @@ public class IntervalSlider: UIView {
     fatalError("init(coder:) has not been implemented")
   }
   
+    convenience public init(frame: CGRect, sources: [IntervalSliderSource], optionsObject: IntervalSliderOptionsObject?) {
+        self.init(frame: frame, sources: sources, options: optionsObject?.generateOptions())
+    }
+
   public init(frame: CGRect, sources: [IntervalSliderSource], options: [IntervalSliderOption]? = nil) {
     super.init(frame: frame)
     self.sources = sources
